@@ -9,8 +9,13 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-import os
+import os, sys
 from pathlib import Path
+#script_path = os.path.realpath(os.path.dirname(__name__))
+#os.chdir(script_path)
+# above mentioned steps will make 1 level up module available for import
+# here Client, Server and Common all 3 can be imported.
+from  .keys import default_db
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -76,14 +81,7 @@ WSGI_APPLICATION = 'aiBlogGenerator.wsgi.application'
 
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'ai_blog_generator_db',
-        'USER': 'client',
-        'PASSWORD': 'password',
-        'HOST': 'localhost',  # or the hostname where your MySQL server is running
-        'PORT': '3306',      # or the port on which your MySQL server is listening
-    }
+    'default': default_db
 }
 
 

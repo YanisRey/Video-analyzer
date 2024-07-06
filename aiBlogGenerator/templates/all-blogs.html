@@ -31,18 +31,16 @@
                     All Blog Posts
                 </h2>
                 <div>
-                    <div class="border border-gray-300 p-4 rounded">
-                        <h3 class="text-lg font-semibold">Blog post title</h3>
-                        <p>this is content sdoic0e8fychuqb0uyr couahbeuocb qubcuyed d9qscubequr W9UBCQUEW CQOUWGEVBURE </p>
-                    </div>
-                    <div class="border border-gray-300 p-4 rounded">
-                        <h3 class="text-lg font-semibold">Blog post title</h3>
-                        <p>this is content sdoic0e8fychuqb0uyr couahbeuocb qubcuyed d9qscubequr W9UBCQUEW CQOUWGEVBURE </p>
-                    </div>
-                    <div class="border border-gray-300 p-4 rounded">
-                        <h3 class="text-lg font-semibold">Blog post title</h3>
-                        <p>this is content sdoic0e8fychuqb0uyr couahbeuocb qubcuyed d9qscubequr W9UBCQUEW CQOUWGEVBURE </p>
-                    </div>
+
+                    {% for article in blog_articles reversed %}
+                    <a href="blog-details/{{article.id}}">
+                        <div class="border border-gray-300 p-4 rounded">
+                            <h3 class="text-lg font-semibold">{{article.youtube_title}}</h3>
+                            <p>{{article.content|truncatechars:80}} </p>
+                        </div>
+                    </a>
+                    {% endfor %}
+                    
                 </div>
             </section>
         </div>
