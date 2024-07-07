@@ -7,6 +7,9 @@
 #loading-circle-3{
   display: none;
 }
+#share-blog, #save-blog, #already-saved{
+  display: none;
+}
 button{
   width:33.33%
 }

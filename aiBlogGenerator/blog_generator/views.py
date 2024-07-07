@@ -18,9 +18,20 @@ from math import ceil
 
 # Create your views here.
 
+def delete_blog(request, pk):
+    BlogPost.objects.filter(id=pk, user=request.user).delete()
+def delete_all(request):
+    BlogPost.objects.filter(user=request.user).delete()
 def blog_list(request):
     blog_articles = BlogPost.objects.filter(user=request.user)
+    '''l=-1
+    for i in blog_articles:
+        if i['id']>l:
+            l=i'''
+    
     return render(request, 'all-blogs.html', {'blog_articles': blog_articles})
+
+
 def yt_title(link):
         return YouTube(link).title
     
@@ -89,15 +100,32 @@ def transcript_to_blog(transcript):
     return content.text.replace('#','')
 
 @csrf_exempt
+def save_blog(request):
+    if (request.method=="POST"):
+        try:
+            data = json.loads(request.body)
+            blog = data['blog']
+            link = data['link']
+        except(KeyError, json.JSONDecodeError):
+            return JsonResponse({'error':'Invalid data sent'}, status=400)
+        
+        #save blog article to database
+        new_blog_article = BlogPost.objects.create(
+            user = request.user,
+            youtube_title = yt_title(link),
+            youtube_link = link,
+            content = blog
+        )
+        new_blog_article.save()
+        
+
+@csrf_exempt
 def generate_blog(request):
-    
-    
     if (request.method=="POST"):
         yt_link = ""
         try:
             data = json.loads(request.body)
             yt_link = data['link']
-            #return JsonResponse({'content':yt_link})
         except(KeyError, json.JSONDecodeError):
             return JsonResponse({'error':'Invalid data sent'}, status=400)
         #get title
@@ -112,14 +140,14 @@ def generate_blog(request):
         blog = transcript_to_blog(transcript)
         if not blog:
             return JsonResponse({'error':'Failed blog generation'}, status=500) 
-        #save blog article to database
+        '''#save blog article to database
         new_blog_article = BlogPost.objects.create(
             user = request.user,
             youtube_title = title,
             youtube_link = yt_link,
             content = blog
         )
-        new_blog_article.save()
+        new_blog_article.save()'''
 
         return JsonResponse({'content': blog})
     else:
@@ -272,10 +300,17 @@ def signup(request):
 
     return render(request, 'signup.html')
 
-def blog_details(request, pk):
+'''def redirect_to_blog_details(request, pk):
     details = BlogPost.objects.get(id = pk)
     if request.user == details.user:
         return render(request, 'blog-details.html', {'blog_article_details', details})
+    else:
+        return redirect('/')
+    '''
+def blog_details(request, pk):
+    details = BlogPost.objects.get(id = pk)
+    if request.user == details.user:
+        return render(request, 'blog-details.html', {'blog_article_details': details})
     else:
         return redirect('/')
 def user_logout(request):

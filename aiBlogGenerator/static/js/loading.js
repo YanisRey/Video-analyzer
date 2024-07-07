@@ -1,6 +1,7 @@
 async function load(i){
     const youtubeLink = document.getElementById('youtubeLink').value;
-    
+    //saving link
+    document.getElementById('saved-link').innerHTML = youtubeLink;
     const info = [
         {   url: '/generate-blog/',
             loadingId: 'loading-circle-1',
@@ -22,7 +23,6 @@ async function load(i){
     function display(i, outputElement, data){
         
         //timestamps
-        
         if (i==1){
             array = JSON.parse(data.content);
             htmlOutput = '';
@@ -47,17 +47,22 @@ async function load(i){
             }
             outputElement.innerHTML = htmlOutput;
             
-            //outputElement.innerHTML = array[0].time.min+array[0].time.sec+data.content+array[0].title;
         } else {
             //blogpost
+            //output the post and make the share button appear
             outputElement.innerHTML = data.content;
+            document.getElementById('share-blog').style.display = 'block';
+            document.getElementById('save-blog').style.display = 'block';
+
+
 
         }
     }
     
     if((i<=1 && youtubeLink) || (i==2 && youtubeLink)) {
+        document.getElementById('already-saved').style.display = 'none';
         document.getElementById(loadId).style.display = 'block';
-        
+
         blogContent.innerHTML = ''; // Clear previous content
 
         //const endpointUrl = '/generate-blog/';
@@ -91,3 +96,82 @@ document.getElementById('generateTSButton').addEventListener('click', async ()=>
 );
 document.getElementById('findClipButton').addEventListener('click', async ()=>load(2)
 );
+document.getElementById('share-blog').addEventListener('click',function(event){
+    const blogContent = document.getElementById('blogContent');
+    const blog = blogContent.innerHTML;
+    const youtubeLink = document.getElementById('saved-link').innerHTML;
+    const prompt = 'If that sounds like a fit to you, click the following link to watch the full video: '
+    sharedData = blog + prompt + youtubeLink;
+    event.preventDefault();
+    window.open('https://twitter.com/intent/post?text='+sharedData);
+});
+document.getElementById('save-blog').addEventListener('click', async function(event){
+    try {
+        const blogContent = document.getElementById('blogContent');
+        const blog = blogContent.innerHTML;
+        const youtubeLink = document.getElementById('saved-link').innerHTML;
+        console.log(youtubeLink);
+        await fetch('/save-blog/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                blog: blog,
+                link: youtubeLink
+             })
+        });
+        document.getElementById('save-blog').style.display = 'none';
+        document.getElementById('already-saved').style.display = 'block';
+
+
+        
+
+    } catch (error) {
+        console.error("Error occurred:", error);
+        alert("Can't save blog post. Please try again later.");
+        
+    }
+});
+/*
+const deleteButtons = document.querySelectorAll( ".delete" );
+deleteButtons.forEach((button)=>{
+    const id = button.id.slice(7);
+    button.addEventListener('click', async function(event){
+        try {
+            const response = await fetch('/delete/'+ id +'/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ id: id })
+            });
+
+
+        } catch (error) {
+            console.error("Error occurred:", error);
+            alert("Failed deletion of blog post. Please try again later.");
+            
+        }
+    });
+});
+
+
+document.getElementById('delete-all').addEventListener('click', async function(event){
+    try {
+        const response = await fetch('/delete-all/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({})
+        });
+
+
+    } catch (error) {
+        console.error("Error occurred:", error);
+        alert("Failed deletion. Please try again later.");
+        
+    }
+});*/
+
