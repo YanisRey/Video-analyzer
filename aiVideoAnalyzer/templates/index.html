@@ -15,14 +15,23 @@
     <!-- Navbar -->
     <nav class="bg-blue-600 p-4 text-white flex justify-between">
         <div>
-            <h1 class="text-3xl font-bold">AI Blog Generator</h1>
+            <h1 class="text-3xl font-bold">AI Video Analyzer</h1>
         </div>
-        <div>
-            <a  class="text-white hover:underline">
-                Welcome {{user.username}}
+        <div class="text-white my-auto text-md">
+            <a  class="hover:underline">
+                Welcome {{user.username}}!
             </a>
-            <a href="logout" class="text-white hover:underline">
+             | 
+            <a  href="/blog-list/" class="hover:underline">
+                Blog List
+            </a>
+             | 
+            <a href="logout" class="hover:underline">
                 Logout
+            </a>
+            | 
+            <a href="/delete-account/" class="hover:underline">
+                Delete Account
             </a>
         </div>
     </nav>
@@ -33,9 +42,9 @@
         <div class="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md transition-transform transform hover:scale-105 flex flex-col">
             <!-- Introduction -->
             <div class="text-center">
-                <h2 class="text-2xl font-semibold mb-4">Welcome to the AI Blog Generator</h2>
+                <h2 class="text-2xl font-semibold mb-4">Welcome to the AI Video Analyzer</h2>
                 <p text-gray-700>
-                    Generate high-quality blog articles from Youtube. Simply enter the link to the Youtube video below and let AI create the content for you!
+                    Generate high-quality blog articles from Youtube. Simply enter the link to the Youtube video below and let AI create the content for you! Or maybe you are tired of looking for a specific subject in a Youtube video. If that is the case, paste the corresponding link and this web application will take care of the rest by generating adequate timestamps with titles.
                 </p>
             </div>
             <br>
@@ -46,12 +55,11 @@
                 </h2>
                 <div class="flex space-x-4 mb-4 text-center">
                     <input type="url" id="youtubeLink" placeholder="Paste Youtube link..." class="flex-grow p-2 border border-blue-400">
-                    <input type="url" id="youtubeLink" placeholder="Paste keyword..." class="flex-grow p-2 border border-blue-400">
                 </div>
                 <div class="text-center">
                     <button id="generateBlogButton" class="bg-blue-600 text-white px-4 py-2 rounded-l-md hover:bg-blue-700 transitions-color flex-grow">Generate Blog Article</button>
                     <button id="generateTSButton" class="bg-blue-600 text-white px-4 py-2 hover:bg-blue-700 transitions-color flex-grow">Generate Timestamps</button>
-                    <button id="findClipButton" class="bg-blue-600 text-white px-4 py-2 rounded-r-md hover:bg-blue-700 transitions-color flex-grow">Find Clip</button>
+                    
                 </div>
             </div>
             
@@ -75,8 +83,8 @@
                     <a href="#" id="save-blog" class="btn btn-default btn-md">
                         <i class="fas fa-save"></i>
                     </a>
-                    <a id="already-saved mt-2">
-                        <i class="fa-solid fa-check"></i>
+                    <a id="already-saved" class="mt-2 flex">
+                        <i class="fa-solid fa-check fa-xl"></i>
                     </a>
                 </div>
             </section>
@@ -88,21 +96,11 @@
                 <!-- Section for loading circle -->
                 <div id="loading-circle-2" class="loader mx-auto"></div>
                 
-                <div class="mt-2 text-gray-700 space-y-4 ml-2">
-                    <pre id="tsContent"> </pre>
-                </div>
+                <pre id="tsContent" class="mt-2 text-gray-700 space-y-4 ml-2">
+                </pre>
             </section>
 
-            <!-- Generate Clip section -->
-            <section class="mt-10 flex-grow">
-                <h2 class="text-xl mb-4 font-semibold">Selected Video Clip</h2>
-
-                <!-- Section for loading circle -->
-                <div id="loading-circle-3" class="loader mx-auto"></div>
-
-                <div id="clipContent" class="mt-2 text-gray-700 space-y-4"></div>
-            </section>
-
+            
         </div>       
     </div>
 

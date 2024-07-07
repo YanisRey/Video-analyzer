@@ -13,22 +13,30 @@ import assemblyai as aai
 import google.generativeai as genai
 import openai
 from .models import BlogPost
-from .keys import openai_key, aiassembly_key, gemini_key1, gemini_key2
+from .keys import aiassembly_key, gemini_key1, gemini_key2
 from math import ceil
 
 # Create your views here.
+@login_required
+def delete_account(request):
+    BlogPost.objects.filter(user=request.user).delete()
+    request.user.delete()
+    return redirect('/')
 
-def delete_blog(request, pk):
+
+@login_required
+def delete_blog(request,pk):
+    #pk = json.loads(request.body)['id']
     BlogPost.objects.filter(id=pk, user=request.user).delete()
+    return blog_list(request)
+    #return render(request, 'all-blogs.html')
+
 def delete_all(request):
     BlogPost.objects.filter(user=request.user).delete()
+    return blog_list(request)
+
 def blog_list(request):
     blog_articles = BlogPost.objects.filter(user=request.user)
-    '''l=-1
-    for i in blog_articles:
-        if i['id']>l:
-            l=i'''
-    
     return render(request, 'all-blogs.html', {'blog_articles': blog_articles})
 
 
@@ -39,69 +47,11 @@ def yt_title(link):
 def index(request):
     return render(request, 'index.html')
 
-def download_audio(link):
-    yt = YouTube(link)
-    video = yt.streams.filter(only_audio=True).first()
-
-    #download file
-    out_file = video.download(output_path=settings.MEDIA_ROOT)
-    #save file
-    base, ext = os.path.splitext(out_file)
-    new_file = base + '.mp3'
-    os.rename(out_file, new_file)
-    return new_file
-    
-def transcription(link):
-    #try:
-    #youtube id is 11 chars
-    srt = YouTubeTranscriptApi.get_transcript(link[-11:])
-    transcript=[]
-    count=0
-    for i in srt:
-        transcript.append(i['text'])
-        count+=len(i['text'])
-    
-    #ditching a portion of the transcript to make it under 100000 chars (found by trial and error)
-    if (count>100000):
-        c = ceil(count/100000)
-        transcript = "".join(transcript[::c])
-    else:
-        transcript = ''.join(transcript)
-
-
-    return transcript
-    '''except:
-        audio = download_audio(link)
-        aai.settings.api_key=aiassembly_key
-        transcriber = aai.Transcriber()
-        transcript = transcriber.transcribe(audio)
-
-        #removing both files created previously
-        os.remove(audio)
-        
-        #making sure transcript is smaller than 100000 chars
-        transcript = transcript.text[:min(100000, len(transcript))]
-        return transcript'''
-    
-
-def transcript_to_blog(transcript):
-# openai.api_key = openai_key
-    prompt = f"Do not use titles and just write a single paragraph. Based on the following transcript of a Youtube video, write a blog article descripbing that video. Add in a little personnality and try to sell that video to readers, while summarizing at the same time. Some parts of the transcripts might or might not be missing:\n\n{transcript}"
-    '''response = openai.completions.create(
-        model="gpt-3.5-turbo-instruct",
-        prompt=prompt,
-        max_tokens=2048
-    )'''
-    #content = response.choices[0].text.strip()
-    genai.configure(api_key=gemini_key1)
-
-    model = genai.GenerativeModel('gemini-1.5-pro')
-    content = model.generate_content(prompt)
-    return content.text.replace('#','')
-
 @csrf_exempt
 def save_blog(request):
     if (request.method=="POST"):
+        blog=''
+        link=''
         try:
             data = json.loads(request.body)
             blog = data['blog']
@@ -117,10 +67,59 @@ def save_blog(request):
             content = blog
         )
         new_blog_article.save()
+        return JsonResponse({})
+
+    else:
+        return redirect('/')
         
 
 @csrf_exempt
 def generate_blog(request):
+    def download_audio(link):
+        yt = YouTube(link)
+        video = yt.streams.filter(only_audio=True).first()
+
+        #download file
+        out_file = video.download(output_path=settings.MEDIA_ROOT)
+        #save file
+        base, ext = os.path.splitext(out_file)
+        new_file = base + '.mp3'
+        os.rename(out_file, new_file)
+        return new_file
+    
+    def transcription(link):
+        #youtube id is 11 chars
+        i = link.index('v=')
+        code = link[i+2:i+13]
+        srt = YouTubeTranscriptApi.get_transcript(code)
+        transcript=[]
+        count=0
+        for i in srt:
+            transcript.append(i['text'])
+            count+=len(i['text'])
+        
+        #ditching a portion of the transcript to make it under 100000 chars (found by trial and error)
+        if (count>100000):
+            c = ceil(count/100000)
+            transcript = "".join(transcript[::c])
+        else:
+            transcript = ''.join(transcript)
+
+
+        return transcript
+        
+
+    def transcript_to_blog(transcript):
+    # openai.api_key = openai_key
+        prompt = f"Do not use titles and just write a single paragraph. Based on the following transcript of a Youtube video, write a blog article descripbing that video. Add in a little personnality and try to sell that video to readers, while summarizing at the same time. Some parts of the transcripts might or might not be missing:\n\n{transcript}"
+        
+        genai.configure(api_key=gemini_key1)
+
+        model = genai.GenerativeModel('gemini-1.5-pro')
+        content = model.generate_content(prompt)
+        
+        return content.text.replace('#','')
+
     if (request.method=="POST"):
         yt_link = ""
         try:
@@ -140,15 +139,7 @@ def generate_blog(request):
         blog = transcript_to_blog(transcript)
         if not blog:
             return JsonResponse({'error':'Failed blog generation'}, status=500) 
-        '''#save blog article to database
-        new_blog_article = BlogPost.objects.create(
-            user = request.user,
-            youtube_title = title,
-            youtube_link = yt_link,
-            content = blog
-        )
-        new_blog_article.save()'''
-
+        
         return JsonResponse({'content': blog})
     else:
         return JsonResponse({'error':'Invalid request method'}, status=405)
@@ -221,7 +212,9 @@ def generate_ts(request):
         except(KeyError, json.JSONDecodeError):
             return JsonResponse({'error':'Invalid data sent'}, status=400)
         #get title
-        srt = YouTubeTranscriptApi.get_transcript(yt_link[-11:])
+        i = yt_link.index('v=')
+        code = yt_link[i+2:i+13]
+        srt = YouTubeTranscriptApi.get_transcript(code)
         if not srt:
                 return JsonResponse({'error':'Failed attempt to get Youtube transcription'}, status=500)
 
@@ -275,7 +268,7 @@ def user_login(request):
             return redirect('/')
         else:
             error_message = "Invalid username or password"
-            return render(request, 'signup.html', {'error_message': error_message})
+            return render(request, 'login.html', {'error_message': error_message})
 
     return render(request, 'login.html')
 def signup(request):
@@ -300,13 +293,7 @@ def signup(request):
 
     return render(request, 'signup.html')
 
-'''def redirect_to_blog_details(request, pk):
-    details = BlogPost.objects.get(id = pk)
-    if request.user == details.user:
-        return render(request, 'blog-details.html', {'blog_article_details', details})
-    else:
-        return redirect('/')
-    '''
+@login_required
 def blog_details(request, pk):
     details = BlogPost.objects.get(id = pk)
     if request.user == details.user:

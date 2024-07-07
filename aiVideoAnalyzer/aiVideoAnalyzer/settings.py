@@ -55,7 +55,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'aiBlogGenerator.urls'
+ROOT_URLCONF = 'aiVideoAnalyzer.urls'
 
 TEMPLATES = [
     {
@@ -73,7 +73,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'aiBlogGenerator.wsgi.application'
+WSGI_APPLICATION = 'aiVideoAnalyzer.wsgi.application'
 
 
 # Database

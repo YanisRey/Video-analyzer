@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{% load static%}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -13,7 +14,7 @@
     <!-- Navbar -->
     <nav class="bg-blue-600 p-4 text-white flex justify-between">
         <div>
-            <h1 class="text-3xl font-bold">AI Blog Generator</h1>
+            <h1 class="text-3xl font-bold">AI Video Analyzer</h1>
             
         </div>
 
@@ -38,7 +39,7 @@
                     <div></div>
                     <h2 class="text-xl mt-4 mb-4 font-semibold text-center">Blog Post Details</h2>
                 
-                    <a class="btn btn-default btn-md my-auto pr-6">
+                    <a href="/delete/{{blog_article_details.id}}" class="btn btn-default btn-md my-auto pr-6">
                         <i class="fa fa-trash" aria-hidden="true"></i>
                     </a>
                 </div>
@@ -46,7 +47,7 @@
                     <h3 class="text-lg font-semibold">
                         {{blog_article_details.youtube_title}}
                     </h3>
-                    <p class="text-gray-700">
+                    <p id="blogContent" class="text-gray-700">
                         {{blog_article_details.content}}
                     </p>
                     <hr class="my-4 border-gray-300">
@@ -59,9 +60,9 @@
                             <h4 class="text-lg font-semibold mt-2">
                                 Youtube Link
                             </h4>
-                            <a href="{{blog_article_details.youtube_link}}" class="text-blue-600 hover:underline">{{blog_article_details.youtube_link}}</a>
+                            <a href="{{blog_article_details.youtube_link}}" id="saved-link" class="text-blue-600 hover:underline">{{blog_article_details.youtube_link}}</a>
                         </div>
-                        <a href="#" id="share-blog" class="btn btn-default btn-md my-auto">
+                        <a id="share-blog" class="btn btn-default btn-md my-auto">
                             <i class="fa fa-brands fa-x-twitter fa-fw my-auto"></i>
                             Share blog
                         </a>
@@ -71,5 +72,6 @@
         </div>
     </div>
     <footer class="text-center p-4 text-black mt-6">By Yanis Merzouki</footer>
+    <script src={% static "js/details.js" %}></script>
 </body>
 </html>

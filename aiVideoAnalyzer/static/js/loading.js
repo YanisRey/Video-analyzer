@@ -10,10 +10,6 @@ async function load(i){
         {   url: '/generate-ts/',
             loadingId: 'loading-circle-2',
             output: 'tsContent'
-        },
-        {   url: '/generate-blog/',
-            loadingId: 'loading-circle-3',
-            output: 'blogContent'
         }
     ] 
     const blogContent = document.getElementById(info[i].output);
@@ -59,13 +55,12 @@ async function load(i){
         }
     }
     
-    if((i<=1 && youtubeLink) || (i==2 && youtubeLink)) {
+    if((youtubeLink)) {
         document.getElementById('already-saved').style.display = 'none';
         document.getElementById(loadId).style.display = 'block';
 
         blogContent.innerHTML = ''; // Clear previous content
 
-        //const endpointUrl = '/generate-blog/';
         
         try {
             const response = await fetch(endpointUrl, {
@@ -94,8 +89,7 @@ document.getElementById('generateBlogButton').addEventListener('click', async ()
 );
 document.getElementById('generateTSButton').addEventListener('click', async ()=>load(1)
 );
-document.getElementById('findClipButton').addEventListener('click', async ()=>load(2)
-);
+
 document.getElementById('share-blog').addEventListener('click',function(event){
     const blogContent = document.getElementById('blogContent');
     const blog = blogContent.innerHTML;
@@ -110,8 +104,7 @@ document.getElementById('save-blog').addEventListener('click', async function(ev
         const blogContent = document.getElementById('blogContent');
         const blog = blogContent.innerHTML;
         const youtubeLink = document.getElementById('saved-link').innerHTML;
-        console.log(youtubeLink);
-        await fetch('/save-blog/', {
+        result = await fetch('/save-blog/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -121,6 +114,7 @@ document.getElementById('save-blog').addEventListener('click', async function(ev
                 link: youtubeLink
              })
         });
+        
         document.getElementById('save-blog').style.display = 'none';
         document.getElementById('already-saved').style.display = 'block';
 
@@ -133,45 +127,4 @@ document.getElementById('save-blog').addEventListener('click', async function(ev
         
     }
 });
-/*
-const deleteButtons = document.querySelectorAll( ".delete" );
-deleteButtons.forEach((button)=>{
-    const id = button.id.slice(7);
-    button.addEventListener('click', async function(event){
-        try {
-            const response = await fetch('/delete/'+ id +'/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ id: id })
-            });
-
-
-        } catch (error) {
-            console.error("Error occurred:", error);
-            alert("Failed deletion of blog post. Please try again later.");
-            
-        }
-    });
-});
-
-
-document.getElementById('delete-all').addEventListener('click', async function(event){
-    try {
-        const response = await fetch('/delete-all/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({})
-        });
-
-
-    } catch (error) {
-        console.error("Error occurred:", error);
-        alert("Failed deletion. Please try again later.");
-        
-    }
-});*/
 
